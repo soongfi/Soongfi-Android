@@ -19,6 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.SnackbarDefaults.backgroundColor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,12 +31,17 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.example.soongfi_android.ui.theme.SoongfiAndroidTheme
 import com.example.soongfi_android.ui.theme.grey
+import com.example.soongfi_android.ui.theme.grey_background
+import com.example.soongfi_android.ui.theme.primary
+import com.soongfi.soongfi_android.R
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,55 +53,82 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Column (
-                        // set minsize to 480dp
-                        // - https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes?hl=ko
-                        modifier = Modifier
-                            .sizeIn(maxWidth = 480.dp)
-                            .padding(all = 12.dp),
-                            ){
-                        // header
-                        Column(Modifier.fillMaxWidth()) {
-                            Text("숭파이")
-                        }
-                        Column(modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f, true),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            // Soongfi login portal button
-                            Button(onClick = {
-                                openLoginPortal(this@MainActivity)
-                            },
-                                modifier = Modifier
-                                    .width(200.dp).height(200.dp)
-                                    .shadow(elevation = 10.dp)
-                                    .clip(shape = RoundedCornerShape(100.dp)),
-                                contentPadding = PaddingValues(all = 0.dp)
-                            ) {
-                                // soongfi logo
-                                Image(painter = painterResource(id = R.drawable.soongfi),
-                                    contentDescription = stringResource(id = R.string.image_description_soongfi),
-                                    modifier = Modifier.size(200.dp).clip(CircleShape)
-                                )
-                            }
-                        }
-                        Column() {
-                            HelpMessage("위 와이파이 버튼을 눌러\n숭실대학교 로그인 페이지 호출 시도해보세요.")
-                            // Soongfi login portal button
-                            Button(onClick = { openRouterPrivatePortal(this@MainActivity) },
-                                // DO NOT USE THIS CASE
-                                contentPadding = PaddingValues(all = 16.dp),
-                                modifier = Modifier.fillMaxWidth().shadow(elevation = 10.dp).clip(shape = RoundedCornerShape(4.dp))
-                            ) {
-                                Text("로그인 페이지 호출 실패")
-                            }
-                        }
-                    }
-
+                    HomeScreen(context = this@MainActivity)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(context: Context){
+    val navController = rememberNavController()
+
+    Column (
+        // set minsize to 480dp
+        // - https://developer.android.com/guide/topics/large-screens/support-different-screen-sizes?hl=ko
+        modifier = Modifier
+            .sizeIn(maxWidth = 480.dp)
+            .padding(all = 12.dp),
+    ) {
+        // header
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("숭파이", color = grey, fontWeight = FontWeight.Bold)
+            // help button
+            IconButton(onClick = {}
+            ) {
+                Icon(Icons.Rounded.Settings, contentDescription = "help", tint = grey)
+            }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            // Soongfi login portal button
+            Button(
+                onClick = {
+                    openLoginPortal(context)
+                },
+                modifier = Modifier
+                    .shadow(elevation = 12.dp, RoundedCornerShape(100.dp))
+                    .width(200.dp)
+                    .height(200.dp)
+                    .clip(shape = RoundedCornerShape(100.dp)),
+                contentPadding = PaddingValues(all = 0.dp)
+            ) {
+                // soongfi logo
+                Image(
+                    painter = painterResource(id = R.drawable.soongfi),
+                    contentDescription = stringResource(id = R.string.image_description_soongfi),
+                    modifier = Modifier
+                        .size(200.dp)
+                        .clip(CircleShape)
+                )
+            }
+        }
+        Column() {
+            HelpMessage("위 와이파이 버튼을 눌러\n숭실대학교 로그인 페이지 호출 시도해보세요.")
+            // Soongfi login portal button
+            Button(
+                onClick = { openRouterPrivatePortal(context) },
+                // DO NOT USE THIS CASE
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(10.dp))
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = grey_background,
+                    contentColor = primary
+                )
+            ) {
+                Text("로그인 페이지 호출 실패")
             }
         }
     }
