@@ -134,6 +134,11 @@ fun HomeScreen(context: Context){
     }
 }
 
+@Composable
+fun TestScreen(){
+
+}
+
 fun openRouterPrivatePortal(context: Context){
     val url = "http://192.168.0.1"
     openChromeCustomTab(context, url)
