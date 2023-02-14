@@ -1,10 +1,14 @@
 package com.example.soongfi_android
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.LinkAddress
+import android.net.LinkProperties
 import android.net.Uri
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.provider.Settings
 import android.text.format.Formatter
 import android.util.Log
 import android.webkit.URLUtil
@@ -36,6 +40,8 @@ import com.example.soongfi_android.ui.theme.grey
 import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
+import java.net.InetAddress
+import java.security.AccessController.getContext
 
 
 class MainActivity : ComponentActivity() {
@@ -178,20 +184,19 @@ fun getLoginPortalURL(
 }
 
 fun getIpAddress(context: Context): String{
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    var link: MutableList<LinkAddress>? = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.linkAddresses
+    Log.d("d", "sdfasdfasdf" + link?.component2())
+
     val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
     val ipAddress: String = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
     return ipAddress
 }
 
-
-
-
+// cannot get MacAddress with android API version >= 31
+// https://developer.android.com/training/articles/user-data-ids?hl=ko#mac-addresses
 fun getMacAddress(context: Context): String{
-
-    val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    val info = wifiManager.connectionInfo
-    return info.macAddress.toUpperCase()
-
+    return "00:00:00:00:00:00"
 }
 
 fun getVlanTag(){
