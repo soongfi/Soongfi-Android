@@ -1,34 +1,28 @@
 package com.example.soongfi_android
 
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
-import android.nfc.Tag
+import android.net.wifi.WifiInfo
+import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.text.format.Formatter
 import android.util.Log
 import android.webkit.URLUtil
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ButtonColors
-import androidx.compose.material.SnackbarDefaults.backgroundColor
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +36,7 @@ import com.example.soongfi_android.ui.theme.grey
 import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,7 +142,7 @@ fun openRouterPrivatePortal(context: Context){
 fun openLoginPortal(context: Context){
 
     // get login portal URL
-    val url = getLoginPortalURL()
+    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(context),"")
 
     // open login portal with ChromeCustomTab
     openChromeCustomTab(context, url)
@@ -167,28 +162,39 @@ fun openChromeCustomTab(context: Context, url: String){
 }
 
 // return valid Soongsil_WIFI Login portal URL (String)
+
 fun getLoginPortalURL(
-    ipAddress: String = "",
-    macAddress: String = "",
-    vlangtag: String = ""
+    ipAddress: String,
+    macAddress: String,
+    vlangtag: String
 ): String {
     var url = "http://auth.soongsil.ac.kr/login/login.do?"
 
     // add parameter string about ipaddress
-    url += "ipaddress=" + "111.111.111.111" + "&macaddress=" + "12:34:56:78:90:AB" + "&vlantag=" + "0110" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
-
+    url += "ipaddress=" + "$ipAddress" + "&macaddress=" + "$macAddress" + "&vlantag=" + "0110" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
+    Log.i("url", url)
     return url
-}
-
-fun getIpAddress(){
 
 }
 
-fun getMacAddress(){
+fun getIpAddress(context: Context): String{
+    val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    val ipAddress: String = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
+    return ipAddress
+}
+
+
+
+
+fun getMacAddress(context: Context): String{
+
+    val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    val info = wifiManager.connectionInfo
+    return info.macAddress.toUpperCase()
 
 }
 
-fun getVlangTag(){
+fun getVlanTag(){
 
 }
 
