@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -36,6 +38,8 @@ import com.example.soongfi_android.ui.theme.grey
 import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
+import java.net.NetworkInterface
+import java.util.*
 
 
 class MainActivity : ComponentActivity() {
@@ -76,7 +80,7 @@ fun HomeScreen(context: Context){
             // help button
             IconButton(onClick = {}
             ) {
-                Icon(Icons.Rounded.Settings, contentDescription = "help", tint = grey)
+                Icon(Icons.Rounded.Info, contentDescription = "help", tint = grey)
             }
         }
         Column(
@@ -130,7 +134,7 @@ fun HomeScreen(context: Context){
 }
 
 @Composable
-fun TestScreen(){
+fun HelpScreen(){
 
 }
 
@@ -142,7 +146,7 @@ fun openRouterPrivatePortal(context: Context){
 fun openLoginPortal(context: Context){
 
     // get login portal URL
-    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(context),"")
+    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(context), getVlanTag(context))
 
     // open login portal with ChromeCustomTab
     openChromeCustomTab(context, url)
@@ -171,7 +175,7 @@ fun getLoginPortalURL(
     var url = "http://auth.soongsil.ac.kr/login/login.do?"
 
     // add parameter string about ipaddress
-    url += "ipaddress=" + "$ipAddress" + "&macaddress=" + "$macAddress" + "&vlantag=" + "0110" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
+    url += "ipaddress=" + "$ipAddress" + "&macaddress=" + "$macAddress" + "&vlantag=" + "$vlangtag" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
     Log.i("url", url)
     return url
 
@@ -187,15 +191,16 @@ fun getIpAddress(context: Context): String{
 
 
 fun getMacAddress(context: Context): String{
-
     val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
     val info = wifiManager.connectionInfo
     return info.macAddress.toUpperCase()
 
+
+
 }
 
-fun getVlanTag(){
-
+fun getVlanTag(context: Context): String{
+    return "0110"
 }
 
 @Composable
