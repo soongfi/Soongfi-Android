@@ -1,10 +1,14 @@
 package com.example.soongfi_android
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.LinkAddress
+import android.net.LinkProperties
 import android.net.Uri
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.provider.Settings
 import android.text.format.Formatter
 import android.util.Log
 import android.webkit.URLUtil
@@ -16,8 +20,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -38,8 +40,8 @@ import com.example.soongfi_android.ui.theme.grey
 import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
-import java.net.NetworkInterface
-import java.util.*
+import java.net.InetAddress
+import java.security.AccessController.getContext
 
 
 class MainActivity : ComponentActivity() {
@@ -80,7 +82,7 @@ fun HomeScreen(context: Context){
             // help button
             IconButton(onClick = {}
             ) {
-                Icon(Icons.Rounded.Info, contentDescription = "help", tint = grey)
+                Icon(Icons.Rounded.Settings, contentDescription = "help", tint = grey)
             }
         }
         Column(
@@ -134,7 +136,7 @@ fun HomeScreen(context: Context){
 }
 
 @Composable
-fun HelpScreen(){
+fun TestScreen(){
 
 }
 
@@ -146,7 +148,7 @@ fun openRouterPrivatePortal(context: Context){
 fun openLoginPortal(context: Context){
 
     // get login portal URL
-    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(context), getVlanTag(context))
+    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(context),"")
 
     // open login portal with ChromeCustomTab
     openChromeCustomTab(context, url)
@@ -175,32 +177,38 @@ fun getLoginPortalURL(
     var url = "http://auth.soongsil.ac.kr/login/login.do?"
 
     // add parameter string about ipaddress
-    url += "ipaddress=" + "$ipAddress" + "&macaddress=" + "$macAddress" + "&vlantag=" + "$vlangtag" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
+    url += "ipaddress=" + "$ipAddress" + "&macaddress=" + "$macAddress" + "&vlantag=" + "0110" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
     Log.i("url", url)
     return url
 
 }
 
+// ipaddress 를 수집하여 반환합니다.
+// ipAddress(ipv4) : String
 fun getIpAddress(context: Context): String{
-    val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    val ipAddress: String = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    var link: MutableList<LinkAddress>? = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.linkAddresses
+
+    // 일반적으로 첫번째 원소에는 ipv6 형태, 두번째 원소에 ipv4 값이 들어가기 때문에
+    // 특정 인덱스를 지정해서 사용하였으나 좋은 방법이 아닙니다. 반복문을 돌려서 ipv4 형식에 맞는 경우를 찾아 리턴해야 할 듯
+    val ipAddress: String = link?.component2()?.toString()?.split("/")!!.get(0)
+
+    // 1. 위 3가지 식을 보다 이해하기 쉽게 재설계 할 필요가 있어보입니다.
+    // 2. ? 와 !! 를 이해할 필요가 있어보입니다.
+
+    // val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+    // val ipAddress: String = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
     return ipAddress
 }
 
-
-
-
+// cannot get MacAddress with android API version >= 31
+// https://developer.android.com/training/articles/user-data-ids?hl=ko#mac-addresses
 fun getMacAddress(context: Context): String{
-    val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    val info = wifiManager.connectionInfo
-    return info.macAddress.toUpperCase()
-
-
-
+    return "00:00:00:00:00:00"
 }
 
-fun getVlanTag(context: Context): String{
-    return "0110"
+fun getVlanTag(){
+
 }
 
 @Composable
