@@ -3,8 +3,11 @@ package com.example.soongfi_android
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.LinkAddress
+import android.net.LinkProperties
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.text.format.Formatter
 import android.util.Log
 import android.webkit.URLUtil
 import androidx.activity.ComponentActivity
@@ -37,6 +40,9 @@ import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
 import kotlin.random.Random
+import java.net.InetAddress
+import java.security.AccessController.getContext
+
 
 
 class MainActivity : ComponentActivity() {
@@ -193,11 +199,14 @@ fun getIpAddress(context: Context): String{
 
     // val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
     // val ipAddress: String = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
+
     return "111.111.111.111" // 임시 ipaddress
+
 }
 
 // cannot get MacAddress with android API version >= 31
 // https://developer.android.com/training/articles/user-data-ids?hl=ko#mac-addresses
+
 fun getMacAddress(): String{
 
     val macAdd = ByteArray(6)
