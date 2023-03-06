@@ -3,13 +3,8 @@ package com.example.soongfi_android
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.LinkAddress
-import android.net.LinkProperties
 import android.net.Uri
-import android.net.wifi.WifiInfo
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.provider.Settings
-import android.text.format.Formatter
 import android.util.Log
 import android.webkit.URLUtil
 import androidx.activity.ComponentActivity
@@ -20,6 +15,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -40,8 +36,7 @@ import com.example.soongfi_android.ui.theme.grey
 import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
-import java.net.InetAddress
-import java.security.AccessController.getContext
+import kotlin.random.Random
 
 
 class MainActivity : ComponentActivity() {
@@ -82,7 +77,7 @@ fun HomeScreen(context: Context){
             // help button
             IconButton(onClick = {}
             ) {
-                Icon(Icons.Rounded.Settings, contentDescription = "help", tint = grey)
+                Icon(Icons.Rounded.Info, contentDescription = "help", tint = grey)
             }
         }
         Column(
@@ -148,7 +143,7 @@ fun openRouterPrivatePortal(context: Context){
 fun openLoginPortal(context: Context){
 
     // get login portal URL
-    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(context),"")
+    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(), getVlanTag())
 
     // open login portal with ChromeCustomTab
     openChromeCustomTab(context, url)
@@ -177,7 +172,7 @@ fun getLoginPortalURL(
     var url = "http://auth.soongsil.ac.kr/login/login.do?"
 
     // add parameter string about ipaddress
-    url += "ipaddress=" + "$ipAddress" + "&macaddress=" + "$macAddress" + "&vlantag=" + "0110" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
+    url += "ipaddress=" + "$ipAddress" + "&macaddress=" + "$macAddress" + "&vlantag=" + "$vlangtag" + "&sysid=0001&btype=014&scode=&back_url=192.168.0.1/login/login.cgi"
     Log.i("url", url)
     return url
 
@@ -198,17 +193,28 @@ fun getIpAddress(context: Context): String{
 
     // val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
     // val ipAddress: String = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
-    return ipAddress
+    return "111.111.111.111" // 임시 ipaddress
 }
 
 // cannot get MacAddress with android API version >= 31
 // https://developer.android.com/training/articles/user-data-ids?hl=ko#mac-addresses
-fun getMacAddress(context: Context): String{
-    return "00:00:00:00:00:00"
+fun getMacAddress(): String{
+
+    val macAdd = ByteArray(6)
+    Random.nextBytes(macAdd)
+
+    val sb = StringBuilder(18)
+
+    for (i: Int in 0..5) {
+        if (sb.length > 0) sb.append(":")
+        sb.append(String.format("%02x", macAdd[i]))
+    }
+
+    return sb.toString()
 }
 
-fun getVlanTag(){
-
+fun getVlanTag() : String{
+    return "0110"
 }
 
 @Composable
