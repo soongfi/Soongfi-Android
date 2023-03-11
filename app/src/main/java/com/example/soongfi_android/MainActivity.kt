@@ -46,6 +46,8 @@ import java.net.InetAddress
 import java.net.NetworkInterface
 import java.security.AccessController.getContext
 import java.util.*
+import java.security.AccessController.getContext
+
 
 
 class MainActivity : ComponentActivity() {
@@ -212,6 +214,7 @@ fun getIpAddress(): String {
                 }
             }
         }
+
 
 
     return "111.111.111.111"
