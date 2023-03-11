@@ -3,8 +3,11 @@ package com.example.soongfi_android
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.LinkAddress
+import android.net.LinkProperties
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
+import android.text.format.Formatter
 import android.util.Log
 import android.webkit.URLUtil
 import androidx.activity.ComponentActivity
@@ -36,7 +39,13 @@ import com.example.soongfi_android.ui.theme.grey
 import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
+import java.net.Inet4Address
+import java.net.Inet6Address
 import kotlin.random.Random
+import java.net.InetAddress
+import java.net.NetworkInterface
+import java.security.AccessController.getContext
+import java.util.*
 
 
 class MainActivity : ComponentActivity() {
@@ -143,7 +152,7 @@ fun openRouterPrivatePortal(context: Context){
 fun openLoginPortal(context: Context){
 
     // get login portal URL
-    val url = getLoginPortalURL(getIpAddress(context),getMacAddress(), getVlanTag())
+    val url = getLoginPortalURL(getIpAddress(),getMacAddress(), getVlanTag())
 
     // open login portal with ChromeCustomTab
     openChromeCustomTab(context, url)
@@ -178,26 +187,46 @@ fun getLoginPortalURL(
 
 }
 
-// ipaddress 를 수집하여 반환합니다.
-// ipAddress(ipv4) : String
-fun getIpAddress(context: Context): String{
-    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    var link: MutableList<LinkAddress>? = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.linkAddresses
+fun getIpAddress(): String {
+    //NetworkInterface.getNetworkInterfaces() : 네트워크 인터페이스 목록 두개를 가져옴 (루프백,실제네트워크)
+    val interfaces: List<NetworkInterface> = Collections.list(NetworkInterface.getNetworkInterfaces())
 
-    // 일반적으로 첫번째 원소에는 ipv6 형태, 두번째 원소에 ipv4 값이 들어가기 때문에
-    // 특정 인덱스를 지정해서 사용하였으나 좋은 방법이 아닙니다. 반복문을 돌려서 ipv4 형식에 맞는 경우를 찾아 리턴해야 할 듯
-    val ipAddress: String = link?.component2()?.toString()?.split("/")!!.get(0)
+        for (intf in interfaces) {
+            // IP주소 목록 반환
+            val addrs: List<InetAddress> = Collections.list(intf.inetAddresses)
+            for (addr in addrs) {
+                // IPv4 주소 가져오기(루프백 주소 필터링)
+                if (!addr.isLoopbackAddress) {
+                    val hostAddress: String = if (addr is Inet4Address) {
+                        addr.hostAddress
+                    } else {
+                        // Ignore IPv6 addresses
+                        continue
+                    }
+                    if (isMobileIPAddress(hostAddress)) {
+                        return hostAddress
+                    }
+                    else {
+                        return "111.111.111.111"
+                    }
+                }
+            }
+        }
 
-    // 1. 위 3가지 식을 보다 이해하기 쉽게 재설계 할 필요가 있어보입니다.
-    // 2. ? 와 !! 를 이해할 필요가 있어보입니다.
 
-    // val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    // val ipAddress: String = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
-    return "111.111.111.111" // 임시 ipaddress
+    return "111.111.111.111"
+}
+
+// 가져온 IPv4 주소가 모바일 IP인지 확인
+fun isMobileIPAddress(ip: String): Boolean {
+    return ip.startsWith("10.") ||
+            ip.startsWith("172.") ||
+            ip.startsWith("192.168.")
 }
 
 // cannot get MacAddress with android API version >= 31
 // https://developer.android.com/training/articles/user-data-ids?hl=ko#mac-addresses
+
 fun getMacAddress(): String{
 
     val macAdd = ByteArray(6)
