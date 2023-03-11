@@ -205,12 +205,8 @@ fun getIpAddress(): String {
                         // Ignore IPv6 addresses
                         continue
                     }
-                    if (isMobileIPAddress(hostAddress)) {
                         return hostAddress
-                    }
-                    else {
-                        return "111.111.111.111"
-                    }
+
                 }
             }
         }
@@ -220,12 +216,7 @@ fun getIpAddress(): String {
     return "111.111.111.111"
 }
 
-// 가져온 IPv4 주소가 모바일 IP인지 확인
-fun isMobileIPAddress(ip: String): Boolean {
-    return ip.startsWith("10.") ||
-            ip.startsWith("172.") ||
-            ip.startsWith("192.168.")
-}
+
 
 // cannot get MacAddress with android API version >= 31
 // https://developer.android.com/training/articles/user-data-ids?hl=ko#mac-addresses
