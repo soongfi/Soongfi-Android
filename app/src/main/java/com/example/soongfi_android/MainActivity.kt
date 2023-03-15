@@ -1,13 +1,9 @@
 package com.example.soongfi_android
 
+import InfoScreen
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.LinkAddress
-import android.net.LinkProperties
 import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
-import android.text.format.Formatter
 import android.util.Log
 import android.webkit.URLUtil
 import androidx.activity.ComponentActivity
@@ -19,7 +15,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.soongfi_android.ui.theme.SoongfiAndroidTheme
 import com.example.soongfi_android.ui.theme.grey
@@ -40,13 +37,11 @@ import com.example.soongfi_android.ui.theme.grey_background
 import com.example.soongfi_android.ui.theme.primary
 import com.soongfi.soongfi_android.R
 import java.net.Inet4Address
-import java.net.Inet6Address
 import kotlin.random.Random
 import java.net.InetAddress
 import java.net.NetworkInterface
-import java.security.AccessController.getContext
 import java.util.*
-import java.security.AccessController.getContext
+
 
 
 
@@ -69,7 +64,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun HomeScreen(context: Context){
-    val navController = rememberNavController()
+
 
     Column (
         // set minsize to 480dp
@@ -81,14 +76,29 @@ fun HomeScreen(context: Context){
         // header
         Row(
             Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("숭파이", color = grey, fontWeight = FontWeight.Bold)
-            // help button
-            IconButton(onClick = {}
+
+            // Info button
+            // NavController 객체를 생성
+            // https://developer.android.com/jetpack/compose/navigation
+            val navController = rememberNavController()
+            NavHost(
+                navController = navController,
+                startDestination = "HomeScreen"
             ) {
-                Icon(Icons.Rounded.Info, contentDescription = "help", tint = grey)
+                composable("HomeScreen") {
+                }
+                composable("InfoScreen") {
+                    InfoScreen()
+                }
+            }
+            //navController.navigate() 메서드를 사용하여 다른 화면으로 이동
+            IconButton(onClick = {navController.navigate("InfoScreen")}
+            ) {
+                Icon(Icons.Rounded.Info, contentDescription = "info", tint = grey)
             }
         }
         Column(
@@ -141,10 +151,6 @@ fun HomeScreen(context: Context){
     }
 }
 
-@Composable
-fun TestScreen(){
-
-}
 
 fun openRouterPrivatePortal(context: Context){
     val url = "http://192.168.0.1"
@@ -206,12 +212,9 @@ fun getIpAddress(): String {
                         continue
                     }
                         return hostAddress
-
                 }
             }
         }
-
-
 
     return "111.111.111.111"
 }
@@ -220,7 +223,7 @@ fun getIpAddress(): String {
 
 // cannot get MacAddress with android API version >= 31
 // https://developer.android.com/training/articles/user-data-ids?hl=ko#mac-addresses
-
+// Create random MacAddress
 fun getMacAddress(): String{
 
     val macAdd = ByteArray(6)
