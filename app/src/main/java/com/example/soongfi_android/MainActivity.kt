@@ -192,7 +192,7 @@ fun getIpAddress(context: Context): String{
 
     // 일반적으로 첫번째 원소에는 ipv6 형태, 두번째 원소에 ipv4 값이 들어가기 때문에
     // 특정 인덱스를 지정해서 사용하였으나 좋은 방법이 아닙니다. 반복문을 돌려서 ipv4 형식에 맞는 경우를 찾아 리턴해야 할 듯
-    val ipAddress: String = link?.component2()?.toString()?.split("/")!!.get(0)
+    // val ipAddress: String = link?.component2()?.toString()?.split("/")!!.get(0)
 
     // 1. 위 3가지 식을 보다 이해하기 쉽게 재설계 할 필요가 있어보입니다.
     // 2. ? 와 !! 를 이해할 필요가 있어보입니다.
